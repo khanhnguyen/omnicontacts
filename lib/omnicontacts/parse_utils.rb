@@ -42,10 +42,15 @@ module OmniContacts
       return nil if email.nil? || !email.include?('@')
       username, domain = *(email.split('@'))
       return nil if username.nil? or domain.nil?
-      gmail_base_url = "https://profiles.google.com/s2/photos/profile/"
+
       yahoo_base_url = "https://img.msg.yahoo.com/avatar.php?yids="
       if domain.include?('gmail')
-        image_url = gmail_base_url + username
+        begin
+          result = JSON.parse(RestClient.get "http://picasaweb.google.com/data/entry/api/user/#{gmail_id}")
+          image_url = result['entry']['gphoto$thumbnail']['$t'] if gmail_id
+        rescue
+          image_url = '/img/gmail_default.png'
+        end
       elsif domain.include?('yahoo')
         image_url = yahoo_base_url + username
       end

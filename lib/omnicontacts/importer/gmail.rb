@@ -16,7 +16,7 @@ module OmniContacts
         @scope = (args[3] && args[3][:scope]) || "https://www.google.com/m8/feeds https://www.googleapis.com/auth/userinfo#email https://www.googleapis.com/auth/userinfo.profile"
         @contacts_host = "www.google.com"
         @contacts_path = "/m8/feeds/contacts/default/full"
-        @max_results =  (args[3] && args[3][:max_results]) || 100
+        @max_results = (args[3] && args[3][:max_results]) || 100
         @self_host = "www.googleapis.com"
         @profile_path = "/oauth2/v1/userinfo"
       end
@@ -52,20 +52,20 @@ module OmniContacts
         response['feed']['entry'].each do |entry|
           # creating nil fields to keep the fields consistent across other networks
 
-          contact = { :id => nil,
-                      :first_name => nil,
-                      :last_name => nil,
-                      :name => nil,
-                      :emails => nil,
-                      :gender => nil,
-                      :birthday => nil,
-                      :profile_picture=> nil,
-                      :relation => nil,
-                      :addresses => nil,
-                      :phone_numbers => nil,
-                      :dates => nil,
-                      :company => nil,
-                      :position => nil
+          contact = {:id => nil,
+                     :first_name => nil,
+                     :last_name => nil,
+                     :name => nil,
+                     :emails => nil,
+                     :gender => nil,
+                     :birthday => nil,
+                     :profile_picture => nil,
+                     :relation => nil,
+                     :addresses => nil,
+                     :phone_numbers => nil,
+                     :dates => nil,
+                     :company => nil,
+                     :position => nil
           }
           contact[:id] = entry['id']['$t'] if entry['id']
           if entry['gd$name']
@@ -73,7 +73,7 @@ module OmniContacts
             contact[:first_name] = normalize_name(entry['gd$name']['gd$givenName']['$t']) if gd_name['gd$givenName']
             contact[:last_name] = normalize_name(entry['gd$name']['gd$familyName']['$t']) if gd_name['gd$familyName']
             contact[:name] = normalize_name(entry['gd$name']['gd$fullName']['$t']) if gd_name['gd$fullName']
-            contact[:name] = full_name(contact[:first_name],contact[:last_name]) if contact[:name].nil?
+            contact[:name] = full_name(contact[:first_name], contact[:last_name]) if contact[:name].nil?
           end
 
           contact[:emails] = []
@@ -91,10 +91,10 @@ module OmniContacts
           contact[:first_name], contact[:last_name], contact[:name] = email_to_name(contact[:name]) if !contact[:name].nil? && contact[:name].include?('@')
           contact[:first_name], contact[:last_name], contact[:name] = email_to_name(contact[:emails][0][:email]) if (contact[:name].nil? && contact[:emails][0] && contact[:emails][0][:email])
           #format - year-month-date
-          contact[:birthday] = birthday(entry['gContact$birthday']['when'])  if entry['gContact$birthday']
+          contact[:birthday] = birthday(entry['gContact$birthday']['when']) if entry['gContact$birthday']
 
           # value is either "male" or "female"
-          contact[:gender] = entry['gContact$gender']['value']  if entry['gContact$gender']
+          contact[:gender] = entry['gContact$gender']['value'] if entry['gContact$gender']
 
           if entry['gContact$relation']
             if entry['gContact$relation'].is_a?(Hash)
@@ -176,12 +176,17 @@ module OmniContacts
 
           contacts << contact if contact[:name]
         end
-        contacts.uniq! {|c| c[:email] || c[:profile_picture] || c[:name]}
+        contacts.uniq! { |c| c[:email] || c[:profile_picture] || c[:name] }
         contacts
       end
 
       def image_url gmail_id
-        return "https://profiles.google.com/s2/photos/profile/" + gmail_id if gmail_id
+        begin
+          result = JSON.parse(RestClient.get "http://picasaweb.google.com/data/entry/api/user/#{gmail_id}")
+          return result['entry']['gphoto$thumbnail']['$t'] if gmail_id
+        rescue
+          '/img/gmail_default.png'
+        end
       end
 
       def current_user me, access_token, token_type
