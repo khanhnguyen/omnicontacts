@@ -182,7 +182,7 @@ module OmniContacts
 
       def image_url gmail_id
         begin
-          result = JSON.parse(RestClient.get "http://picasaweb.google.com/data/entry/api/user/#{gmail_id}")
+          result = JSON.parse(RestClient.get "http://picasaweb.google.com/data/entry/api/user/#{gmail_id}?alt=json")
           return result['entry']['gphoto$thumbnail']['$t'] if gmail_id
         rescue
           '/img/gmail_default.png'

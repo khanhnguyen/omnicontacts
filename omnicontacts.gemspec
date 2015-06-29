@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
 
   gem.version = OmniContacts::VERSION
   gem.files = `git ls-files`.split("\n")
-  gem.homepage = 'http://github.com/Diego81/omnicontacts'
+  gem.homepage = 'https://github.com/khanhnguyen/omnicontacts'
   gem.require_paths = ['lib']
   gem.required_rubygems_version = Gem::Requirement.new('>= 1.3.6') if gem.respond_to? :required_rubygems_version=
   gem.summary = gem.description

@@ -46,7 +46,7 @@ module OmniContacts
       yahoo_base_url = "https://img.msg.yahoo.com/avatar.php?yids="
       if domain.include?('gmail')
         begin
-          result = JSON.parse(RestClient.get "http://picasaweb.google.com/data/entry/api/user/#{gmail_id}")
+          result = JSON.parse(RestClient.get "http://picasaweb.google.com/data/entry/api/user/#{gmail_id}?alt=json")
           image_url = result['entry']['gphoto$thumbnail']['$t'] if gmail_id
         rescue
           image_url = '/img/gmail_default.png'
